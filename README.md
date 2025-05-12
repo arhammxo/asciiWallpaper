@@ -30,7 +30,7 @@ A professional-grade application that transforms images into colorful ASCII art,
 ## 📋 Requirements
 
 - Python 3.7+
-- Pillow (PIL) 9.0.0+
+- Pillow (PIL) 11.2.0+
 - NumPy 1.21.0+
 - TkInter (for GUI mode)
 - Other dependencies listed in `requirements.txt`
@@ -40,7 +40,7 @@ A professional-grade application that transforms images into colorful ASCII art,
 ```bash
 # Clone the repository
 git clone https://github.com/arhammxo/asciiWallpaper.git
-cd ascii-wallpaper
+cd asciiWallpaper
 
 # Create a virtual environment (optional but recommended)
 python -m venv venv
