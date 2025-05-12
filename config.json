@@ -1,0 +1,22 @@
+{
+    "logging": {
+        "level": "DEBUG",
+        "log_to_file": true,
+        "log_performance": true
+    },
+    "image": {
+        "default_width": 100,
+        "default_height": 50
+    },
+    "ascii": {
+        "default_charset": "standard",
+        "default_color_scheme": "full_rgb"
+    },
+    "output": {
+        "default_format": "txt"
+    },
+    "ui": {
+        "theme": "system",
+        "show_preview": true
+    }
+}

@@ -1,0 +1,6 @@
+# requirements.txt
+Pillow>=11.2.1
+numpy>=1.21.0
+opencv-python>=4.5.0  # For video processing
+matplotlib>=3.5.0     # For visualization
+tk>=0.1.0             # For GUI (included with Python)
