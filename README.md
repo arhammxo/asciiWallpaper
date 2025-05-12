@@ -171,6 +171,9 @@ Enhance your ASCII art with image preprocessing:
 
 ```bash
 python main.py -i photo.jpg -c -f png -o enhanced.png --preprocess sharpen
+
+python main.py -i images/we.png -c -f png -o output/detailed.png --high-density  --directional --fontsize 4 --keepdims
+python main.py -i images/we.png -c -f png -o output/detailed_bright2.png --high-density --charset bright --brightness 2.0 --brightness-boost 2.0 --keepdims -fs 4
 ```
 
 ## 📈 Logging and Debugging

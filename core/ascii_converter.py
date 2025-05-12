@@ -11,6 +11,7 @@ class AsciiConverter:
         # Default character set from dense/dark to light
         self.char_sets = {
             "standard": "@%#*+=-:. ",
+            "bright": " .:-=+*#%@",     # New! Inverted for brightness
             "detailed": "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
             "simple": "#@%*+=-:. ",
             "blocks": "█▓▒░ ",
@@ -51,7 +52,7 @@ class AsciiConverter:
         return self.char_set
     
     @PerformanceLogger().log_execution_time(threshold_ms=50)
-    def pixel_to_ascii(self, pixel, x=0, y=0, image_array=None, colored=True, bg_color=None, invert=False):
+    def pixel_to_ascii(self, pixel, x=0, y=0, image_array=None, colored=True, bg_color=None, invert=False, brightness_boost=1.5):
         """Convert a single pixel to ASCII character with optional color"""
         try:
             # Extract RGB values
@@ -61,13 +62,17 @@ class AsciiConverter:
                 r = g = b = pixel[0]
                 
             # Calculate intensity/brightness (0-255)
-            intensity = (0.299 * r + 0.587 * g + 0.114 * b)  # Weighted RGB to grayscale
+            # Use a more brightness-friendly method (max component)
+            intensity = max(r, g, b)  # Changed from weighted RGB
             
-            # Map intensity to character index
+            # Apply brightness boost
+            adjusted_intensity = min(255, intensity * brightness_boost)
+            
+            # Map intensity to character index with brightness correction
             if invert:
-                char_index = int((255 - intensity) / 255 * (len(self.char_set) - 1))
+                char_index = int((255 - adjusted_intensity) / 255 * (len(self.char_set) - 1))
             else:
-                char_index = int(intensity / 255 * (len(self.char_set) - 1))
+                char_index = int(adjusted_intensity / 255 * (len(self.char_set) - 1))
             
             # Ensure index is in bounds
             char_index = max(0, min(char_index, len(self.char_set) - 1))
@@ -110,7 +115,7 @@ class AsciiConverter:
             return " "
     
     @PerformanceLogger().log_execution_time
-    def image_to_ascii(self, image_array, colored=True, bg_color=None, invert=False):
+    def image_to_ascii(self, image_array, colored=True, bg_color=None, invert=False, brightness_boost=1.5):
         """Convert entire image array to ASCII art"""
         if image_array is None:
             self.logger.error("Cannot convert None image array to ASCII")
@@ -118,7 +123,7 @@ class AsciiConverter:
             
         try:
             height, width = image_array.shape[:2]
-            self.logger.info(f"Converting {width}x{height} image to ASCII (colored={colored}, invert={invert}, directional={self.directional_mode})")
+            self.logger.info(f"Converting {width}x{height} image to ASCII (colored={colored}, invert={invert}, brightness_boost={brightness_boost})")
             
             # Check if we're in image output mode
             is_image_mode = hasattr(self.color_handler, 'output_mode') and self.color_handler.output_mode == "image"
@@ -144,7 +149,8 @@ class AsciiConverter:
                             image_array,  # Pass the entire array for direction detection
                             colored, 
                             bg_color, 
-                            invert
+                            invert,
+                            brightness_boost  # Pass the brightness boost parameter
                         )
                         
                         if is_image_mode:

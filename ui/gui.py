@@ -62,6 +62,10 @@ class GUI:
         output_frame = ttk.LabelFrame(control_frame, text="Output", padding="10")
         output_frame.pack(fill=tk.X, pady=5)
         
+        # Add advanced settings frame
+        advanced_frame = ttk.LabelFrame(control_frame, text="Advanced", padding="10")
+        advanced_frame.pack(fill=tk.X, pady=5)
+        
         # File section widgets
         ttk.Button(file_frame, text="Load Image", command=self.load_image).pack(fill=tk.X)
         
@@ -146,6 +150,14 @@ class GUI:
         format_combobox.grid(row=0, column=1, padx=5, pady=2)
         
         ttk.Button(output_frame, text="Save", command=self.save_output).grid(row=1, column=0, columnspan=2, sticky=tk.EW, pady=10)
+
+        # Advanced widgets
+        ttk.Label(advanced_frame, text="Brightness Boost:").pack(anchor=tk.W)
+        self.brightness_boost_var = tk.DoubleVar(value=1.5)
+        ttk.Scale(advanced_frame, from_=1.0, to=3.0, orient=tk.HORIZONTAL, variable=self.brightness_boost_var).pack(fill=tk.X)
+
+        self.light_mode_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(advanced_frame, text="Light Mode", variable=self.light_mode_var).pack(anchor=tk.W)
     
     def load_image(self):
         """Open file dialog and load image"""

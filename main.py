@@ -38,13 +38,13 @@ def main():
         parser.add_argument('-ht', '--height', type=int, help='Height in characters')
         parser.add_argument('-c', '--color', action='store_true', help='Use color')
         parser.add_argument('-cs', '--charset', 
-                   choices=['standard', 'detailed', 'simple', 'blocks', 'minimal', 'diagonal', 'manga', 'contrast'],
+                   choices=['standard', 'bright', 'detailed', 'simple', 'blocks', 'minimal', 'diagonal', 'manga', 'contrast'],
                    default='standard', help='Character set to use')
         parser.add_argument('-cm', '--colormode', help='Color mode (full_rgb, pastel, neon, grayscale)')
         parser.add_argument('-f', '--format', help='Output format (txt, html, png, jpg)')
         parser.add_argument('-g', '--gui', action='store_true', help='Start with GUI interface')
-        parser.add_argument('-b', '--brightness', type=float, default=1.0, help='Brightness adjustment (0.1-2.0)')
-        parser.add_argument('-ct', '--contrast', type=float, default=1.0, help='Contrast adjustment (0.1-2.0)')
+        parser.add_argument('-b', '--brightness', type=float, default=1.3, help='Brightness adjustment (0.1-2.0)')
+        parser.add_argument('-ct', '--contrast', type=float, default=1.2, help='Contrast adjustment (0.1-2.0)')
         parser.add_argument('-iv', '--invert', action='store_true', help='Invert character mapping')
         parser.add_argument('-d', '--debug', action='store_true', help='Enable debug logging')
         parser.add_argument('-fs', '--fontsize', type=int, default=12, help='Font size for image output')
@@ -53,13 +53,21 @@ def main():
         parser.add_argument('-oh', '--outputheight', type=int, help='Custom output image height')
         parser.add_argument('-pre', '--preprocess', choices=['none', 'edge', 'sharpen', 'contrast'], 
                    default='none', help='Image preprocessing method')
-        parser.add_argument('-dir', '--directional', action='store_true', 
+        parser.add_argument('-dir', '--directional', action='store_true',
                    help='Enable directional character selection')
         
-        parser.add_argument('--high-density', action='store_true', 
+        parser.add_argument('--high-density', action='store_true',
                             help='Use high-density mode for more detailed ASCII art')
         parser.add_argument('--density-factor', type=float, default=1.0,
                             help='Density multiplier for high-density mode (higher = more characters)')
+
+        # Add these arguments to the parser
+        parser.add_argument('--brightness-boost', type=float, default=1.5,
+                   help='Brightness boost factor for ASCII mapping (higher = brighter output)')
+        parser.add_argument('--use-max-rgb', action='store_true',
+                   help='Use maximum RGB component for brightness calculation (brighter result)')
+        parser.add_argument('--light-mode', action='store_true',
+                   help='Use light mode: inverted characters with dark background')
         
         args = parser.parse_args()
     
@@ -182,10 +190,25 @@ def main():
                 logger.error("Failed to convert image to array")
                 return
                 
+            # Get brightness parameters
+            brightness_boost = args.brightness_boost if hasattr(args, 'brightness_boost') else 1.5
+            
+            # If light mode is enabled, use the "bright" character set
+            if args.light_mode and hasattr(converter, 'set_char_set'):
+                logger.info("Using light mode with inverted character set")
+                converter.set_char_set("bright")
+                # Use a light background for image output
+                bg_color = (240, 240, 240) if args.format in ['png', 'jpg', 'jpeg'] else None
+            else:
+                bg_color = None
+
+            # Convert to ASCII with brightness parameters
             ascii_rows = converter.image_to_ascii(
-                image_array, 
-                colored=args.color, 
-                invert=args.invert
+                image_array,
+                colored=args.color,
+                bg_color=bg_color,
+                invert=args.invert,
+                brightness_boost=brightness_boost
             )
             
             if not ascii_rows:
